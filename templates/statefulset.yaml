@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chart.fullname" . }}-cachegrand
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  minReadySeconds: 30
+  replicas: {{ .Values.cachegrand.replicas }}
+  selector:
+    matchLabels:
+      app: cachegrand
+  serviceName: {{ include "chart.fullname" . }}-cachegrand
+  template:
+    metadata:
+      labels:
+        app: cachegrand
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.cachegrand.cachegrand.image.repository }}:{{ .Values.cachegrand.cachegrand.image.tag
+          | default .Chart.AppVersion }}
+        name: cachegrand
+        ports:
+        - containerPort: 6379
+          name: non-ssl
+        - containerPort: 6380
+          name: ssl
+        - containerPort: 9090
+          name: prometheus
+        resources: {}
+        volumeMounts:
+        - mountPath: /backups/
+          name: backup
+        - mountPath: /etc/cachegrand/cachegrand.pem
+          name: certificate-pem
+          readOnly: true
+        - mountPath: /etc/cachegrand/cachegrand.key
+          name: certificate-key
+          readOnly: true
+      terminationGracePeriodSeconds: 10
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      creationTimestamp: null
+      name: backup
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources: {{ .Values.cachegrand.volumeClaims.backup | toYaml | nindent 8 }}

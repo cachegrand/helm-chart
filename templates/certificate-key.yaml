@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "chart.fullname" . }}-certificate-key
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+type: tls

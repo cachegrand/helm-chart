@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chart.fullname" . }}-cachegrand-headless-svc
+  labels:
+  {{- include "chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.cachegrandHeadlessSvc.type }}
+  selector:
+    app: cachegrand
+  {{- include "chart.selectorLabels" . | nindent 4 }}
+  ports:
+	{{- .Values.cachegrandHeadlessSvc.ports | toYaml | nindent 2 -}}
