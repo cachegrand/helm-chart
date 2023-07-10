@@ -1,4 +1,4 @@
-achegrand:
+cachegrand:
   cachegrand:
     image:
       repository: cachegrand/cachegrand-server
@@ -8,7 +8,7 @@ achegrand:
     backup:
       requests:
         storage: 10Gi
-achegrandHeadlessSvc:
+cachegrandHeadlessSvc:
   ports:
   - port: 6379
     protocol: TCP
