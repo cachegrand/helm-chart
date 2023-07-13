@@ -5,9 +5,22 @@ metadata:
   labels:
   {{- include "chart.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.cachegrandHeadlessSvc.type }}
   selector:
     app: cachegrand
   {{- include "chart.selectorLabels" . | nindent 4 }}
   ports:
-	{{- .Values.cachegrandHeadlessSvc.ports | toYaml | nindent 2 -}}
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+    name: non-ssl
+{{- if .Values.tls.enabled }}    
+  - port: 6380
+    protocol: TCP
+    targetPort: 6380
+    name: ssl
+{{- end }}     
+  - port: 9090
+    protocol: TCP
+    targetPort: 9090
+    name: prometheus
+  type: ClusterIP

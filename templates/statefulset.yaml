@@ -16,6 +16,12 @@ spec:
       labels:
         app: cachegrand
     spec:
+      volumes:
+{{- if .Values.tls.enabled }}   
+      - name: certificate
+        secret:
+          secretName: {{ include "chart.fullname" . }}-cachegrand-certificate
+{{- end }}          
       containers:
       - env:
         - name: KUBERNETES_CLUSTER_DOMAIN
@@ -26,20 +32,21 @@ spec:
         ports:
         - containerPort: 6379
           name: non-ssl
+{{- if .Values.tls.enabled }}          
         - containerPort: 6380
           name: ssl
+{{- end }}
         - containerPort: 9090
           name: prometheus
         resources: {}
         volumeMounts:
         - mountPath: /backups/
           name: backup
-        - mountPath: /etc/cachegrand/cachegrand.pem
-          name: certificate-pem
+{{- if .Values.tls.enabled }}             
+        - mountPath: /etc/cachegrand/tls/
+          name: certificate
           readOnly: true
-        - mountPath: /etc/cachegrand/cachegrand.key
-          name: certificate-key
-          readOnly: true
+{{- end }}          
       terminationGracePeriodSeconds: 10
   updateStrategy:
     type: RollingUpdate
